@@ -31,7 +31,14 @@ function HandleFrame(frame){
 }
 
 function HandleFinger(finger){
-	var x = finger.tipPosition[0];
+	console.log(finger.bones);
+	for(var b=0; b<finger.bones.length; b++){
+		var bone = finger.bones[b];
+		HandleBone(bone);
+		// console.log();
+	}
+	
+	/*var x = finger.tipPosition[0];
 	var y = finger.tipPosition[1];
 	var z = finger.tipPosition[2];
 
@@ -52,9 +59,36 @@ function HandleFinger(finger){
 	x = ( (x - rawXMin) / (rawXMax - rawXMin) ) * (window.innerWidth - 0) + 0;
 	// console.log(x);
 
-	var y = ( (y - rawYMin) / (rawYMax - rawYMin) ) * (window.innerHeight - 0) + 0;
+	var y = ( (y - rawYMin) / (rawYMax - rawYMin) ) * (window.innerHeight - 0) + 0;*/
 	// console.log(y);
 
+	// circle((x), window.innerHeight - y, 50);
+}
+
+function HandleBone(bone){
+	var bone_start = bone .prevJoint;
+	var bone_end = bone.nextJoint;
+	var x = bone_end[0];
+	var y = bone_end[1];
+
+	if (x < rawXMin){
+		rawXMin = x;
+	}
+	if (x > rawXMax){
+		rawXMax = x;
+	}
+	if (y < rawYMin){
+		rawYMin = y;
+	}
+	if (y > rawYMax){
+		rawYMax = y;
+	}
+
+	//code from: https://stackoverflow.com/questions/929103/convert-a-number-range-to-another-range-maintaining-ratio
+	x = ( (x - rawXMin) / (rawXMax - rawXMin) ) * (window.innerWidth - 0) + 0;
+	// console.log(x);
+
+	var y = ( (y - rawYMin) / (rawYMax - rawYMin) ) * (window.innerHeight - 0) + 0;
 	circle((x), window.innerHeight - y, 50);
 }
 
