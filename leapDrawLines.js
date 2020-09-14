@@ -1,13 +1,13 @@
 var controllerOptions = {};
-var x = window.innerWidth; //get the width of current window
-var y = window.innerHeight;  //get the height of current window
+// var x = window.innerWidth; //get the width of current window
+// var y = window.innerHeight;  //get the height of current window
 
 var rawXMin, rawXMax, rawYMin, rawYMax;
 
-rawXMin = 500;
-rawYMin = 500;
-rawXMax = -500;
-rawYMax = -500;
+rawXMin = 5000;
+rawYMin = 5000;
+rawXMax = -5000;
+rawYMax = -5000;
 
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
@@ -16,9 +16,9 @@ function getRndInteger(min, max) {
 function HandleHand(hand){
 	var fingers = hand.fingers;
 	for (var f=0; f<fingers.length; f++){
-		if(fingers[f].extended){
-			var finger = fingers[f];	
-			HandleFinger(finger);
+		var finger = fingers[f];
+		for(var b=finger.bones.length-1; b>=0; b--){
+			HandleBone(finger.bones[b], 1.5);
 		}
 	}
 }
@@ -30,47 +30,53 @@ function HandleFrame(frame){
 	}
 }
 
-function HandleFinger(finger){
-	console.log(finger.bones);
+/*function HandleFinger(finger){
 	for(var b=0; b<finger.bones.length; b++){
 		var bone = finger.bones[b];
-		HandleBone(bone);
-		// console.log();
+		var strkWeight = 1.5;
+		
+		HandleBone(bone, strkWeight);
 	}
-	
-	/*var x = finger.tipPosition[0];
-	var y = finger.tipPosition[1];
-	var z = finger.tipPosition[2];
+}*/
 
-	if (x < rawXMin){
-		rawXMin = x;
+function HandleBone(bone,strkWeight){
+	var bone_base = bone.prevJoint;
+	var bone_tip = bone.nextJoint;
+
+	var xb = bone_base[0];
+	var yb = bone_base[1];
+	var zb = bone_base[2];
+
+	var xt = bone_tip[0];
+	var yt = bone_tip[1];
+	var zt = bone_tip[2];
+
+	[xb,yb] = TransformCoordinates(xb,yb);
+	[xt,yt] = TransformCoordinates(xt,yt);
+
+	if (bone.type == 3){
+		strkWeight += 1.5;
+		stroke(50);
+	} 
+	if (bone.type == 2){
+		strkWeight += 4;
+		stroke(80);
+	} 
+	if (bone.type == 1){
+		strkWeight += 8;
+		stroke(210);
 	}
-	if (x > rawXMax){
-		rawXMax = x;
-	}
-	if (y < rawYMin){
-		rawYMin = y;
-	}
-	if (y > rawYMax){
-		rawYMax = y;
+	if (bone.type == 0){
+		strkWeight += 11;
+		stroke(215);
 	}
 
-	//code from: https://stackoverflow.com/questions/929103/convert-a-number-range-to-another-range-maintaining-ratio
-	x = ( (x - rawXMin) / (rawXMax - rawXMin) ) * (window.innerWidth - 0) + 0;
-	// console.log(x);
+	strokeWeight(strkWeight);
 
-	var y = ( (y - rawYMin) / (rawYMax - rawYMin) ) * (window.innerHeight - 0) + 0;*/
-	// console.log(y);
-
-	// circle((x), window.innerHeight - y, 50);
+	line(xt,window.innerHeight - yt,xb, window.innerHeight - yb);
 }
 
-function HandleBone(bone){
-	var bone_start = bone .prevJoint;
-	var bone_end = bone.nextJoint;
-	var x = bone_end[0];
-	var y = bone_end[1];
-
+function TransformCoordinates(x,y){
 	if (x < rawXMin){
 		rawXMin = x;
 	}
@@ -89,7 +95,8 @@ function HandleBone(bone){
 	// console.log(x);
 
 	var y = ( (y - rawYMin) / (rawYMax - rawYMin) ) * (window.innerHeight - 0) + 0;
-	circle((x), window.innerHeight - y, 50);
+
+	return [x,y];
 }
 
 Leap.loop(controllerOptions, function(frame)
