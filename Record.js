@@ -9,6 +9,9 @@ rawYMin = 5000;
 rawXMax = -5000;
 rawYMax = -5000;
 
+var previousNumHands = 0;
+var currentNumHands = 0;
+
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
 }
@@ -24,7 +27,7 @@ function HandleHand(hand){
 }
 
 function HandleFrame(frame){
-	if (frame.hands.length == 1) {
+	if (frame.hands.length == 1 || frame.hands.length > 1) {
 		var hand = frame.hands[0];
 		HandleHand(hand);
 	}
@@ -56,19 +59,19 @@ function HandleBone(bone,strkWeight){
 
 	if (bone.type == 3){
 		strkWeight += 1.5;
-		stroke(50);
+		//stroke(0,130,0);
 	} 
 	if (bone.type == 2){
 		strkWeight += 4;
-		stroke(80);
+		// stroke(0,120,0);
 	} 
 	if (bone.type == 1){
 		strkWeight += 8;
-		stroke(210);
+		// stroke(0,100,0);
 	}
 	if (bone.type == 0){
 		strkWeight += 11;
-		stroke(215);
+		// stroke(0,90,0);
 	}
 
 	strokeWeight(strkWeight);
@@ -101,8 +104,13 @@ function TransformCoordinates(x,y){
 
 Leap.loop(controllerOptions, function(frame)
 {
+	currentNumHands = frame.hands.length;
 	clear();
-
+	if (currentNumHands ==1){
+		stroke(0,90,0);
+	} else{
+		stroke(250,0,0);
+	}
 	// var xRandNum = getRndInteger(-1,1) + (Math.random());
 	// // console.log(xRandNum);
 
@@ -114,5 +122,8 @@ Leap.loop(controllerOptions, function(frame)
 	// var i = 0;
 	// console.log(i);
 	// circle((x/2) + xRandNum, (y/2) + yRandNum, 50);
+	// console.log(previousNumHands, "----", currentNumHands);
+
 	HandleFrame(frame);
+	previousNumHands = currentNumHands;
 });
