@@ -1,3 +1,10 @@
+//step 21
+
+
+var oneFrameOfData = nj.zeros([5,4,6]);
+// console.log(oneFrameOfData.toString());
+
+// oneFrameOfData.set(0,1);
 var controllerOptions = {};
 // var x = window.innerWidth; //get the width of current window
 // var y = window.innerHeight;  //get the height of current window
@@ -16,12 +23,18 @@ function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
 }
 
+function RecordData(){
+	if (previousNumHands > 1 && currentNumHands == 1){
+		background(51);
+	}
+}
+
 function HandleHand(hand){
 	var fingers = hand.fingers;
 	for (var f=0; f<fingers.length; f++){
 		var finger = fingers[f];
 		for(var b=finger.bones.length-1; b>=0; b--){
-			HandleBone(finger.bones[b], 1.5);
+			HandleBone(finger.bones[b], 1.5, f, b);
 		}
 	}
 }
@@ -41,8 +54,7 @@ function HandleFrame(frame){
 		HandleBone(bone, strkWeight);
 	}
 }*/
-
-function HandleBone(bone,strkWeight){
+function HandleBone(bone,strkWeight, fingerIndex, boneIndex){
 	var bone_base = bone.prevJoint;
 	var bone_tip = bone.nextJoint;
 
@@ -73,10 +85,18 @@ function HandleBone(bone,strkWeight){
 		strkWeight += 11;
 		// stroke(0,90,0);
 	}
-
+	fingerIndexSum = xb+yb+zb+xt+yt+zt;
+	// fingerIndex = 0;
 	strokeWeight(strkWeight);
 
 	line(xt,window.innerHeight - yt,xb, window.innerHeight - yb);
+	
+	oneFrameOfData.set(fingerIndex, boneIndex, 0, xb);
+	oneFrameOfData.set(fingerIndex, boneIndex, 1, yb);
+	oneFrameOfData.set(fingerIndex, boneIndex, 2, zb);
+	oneFrameOfData.set(fingerIndex, boneIndex, 3, xt);
+	oneFrameOfData.set(fingerIndex, boneIndex, 4, yt);
+	oneFrameOfData.set(fingerIndex, boneIndex, 5, zt);
 }
 
 function TransformCoordinates(x,y){
@@ -108,6 +128,7 @@ Leap.loop(controllerOptions, function(frame)
 	clear();
 	if (currentNumHands ==1){
 		stroke(0,90,0);
+		console.log(oneFrameOfData.toString());
 	} else{
 		stroke(250,0,0);
 	}
@@ -125,5 +146,10 @@ Leap.loop(controllerOptions, function(frame)
 	// console.log(previousNumHands, "----", currentNumHands);
 
 	HandleFrame(frame);
+
+	RecordData();
+
 	previousNumHands = currentNumHands;
 });
+
+// console.log(oneFrameOfData.toString());
