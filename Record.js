@@ -1,6 +1,3 @@
-//step 21
-
-
 var oneFrameOfData = nj.zeros([5,4,6]);
 // console.log(oneFrameOfData.toString());
 
