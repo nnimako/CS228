@@ -155,6 +155,7 @@ var irisData = nj.array([
 var trainingCompleted = false;
 var numSamples = irisData.shape[0];
 var numFeatures = irisData.shape[1];
+var predictedClassLabels = nj.zeros([numSamples]);
 
 var currentFeatures;
 var currentLabel;
@@ -165,19 +166,20 @@ function draw(){
     Train();
     trainingCompleted = true;
   }
-  //Test();
+  Test();
+  DrawCircles();
 }
 
 function Train(){
 	for (var i=0; i<numSamples; i++){
 		if (i%2 ==0){
-			currentFeatures = irisData.pick(i).slice([0,4]);
+			currentFeatures = irisData.pick(i).slice([0,2]);
 			currentLabel = irisData.pick(i).get(-1);
 			//console.log(i, ">>>", currentFeatures.toString(), ">>>", currentLabel);
 			knnClassifier.addExample(currentFeatures.tolist(), currentLabel);
 
 			var predictedLabel = knnClassifier.classify(currentFeatures.tolist(), GotResults);
-			console.log(i, ">>>", currentFeatures.toString(), ">>>", currentLabel, ">>>", predictedLabel);
+			// console.log(i, ">>>", currentFeatures.toString(), ">>>", currentLabel, ">>>", predictedLabel);
 		}
 	}
 
@@ -185,10 +187,12 @@ function Train(){
 }
 
 function Test(){
-	//var predictedLabel = knnClassifier.classify(currentFeatures.tolist(), GotResults);
-	//console.log(i, ">>>", currentFeatures.toString(), ">>>", currentLabel, ">>>", predictedLabel);
+    currentFeatures = irisData.pick(testingSampleIndex).slice([0,2]);
+    currentLabel = irisData.pick(testingSampleIndex).get(-1);
+	var predictedLabel = knnClassifier.classify(currentFeatures.tolist(), GotResults);
+	// console.log(currentFeatures.toString(), ">>>", currentLabel, ">>>", predictedLabel);
 
-	console.log(irisData.pick(testingSampleIndex).toString());
+	//console.log(irisData.pick(testingSampleIndex).toString());
 	/*for (var i=0; i<numSamples; i++){
 		if(i%2 != 0){
 			//console.log(i, ">>>", irisData.pick(i).toString());
@@ -201,5 +205,39 @@ function Test(){
 function GotResults(err, result){
 	//Test();
 	// console.log((result));
-	console.log(parseInt(result.label));
+	// console.log(result.classIndex, ">>>", parseInt(result.label));
+    predictedClassLabels.set(testingSampleIndex, parseInt(result.label));
+    testingSampleIndex+=2;
+    if (testingSampleIndex > numSamples) {
+        testingSamples = 1;
+    }
+}
+
+function DrawCircles(){
+    var x,y,c, color;
+    for(var i=0; i< numSamples; i++){
+        x = irisData.pick(i).get(0);
+        y = irisData.pick(i).get(1);
+        c = irisData.pick(i).get(-1);
+
+        if (c == 0) {
+            color = 'red';
+            fill(color);
+        } else if(c == 1){
+            color = "limegreen";
+            fill(color);
+        }else if(c = 2){
+            color = "blue";
+            fill(color);
+        }
+
+        if (i%2 == 0){
+            stroke(0,0,0);
+            // stroke(color);
+        }else{
+            stroke(color);
+        }
+        // console.log(x, ">>>", y);
+        circle(x*100, y*100, 10);
+    }
 }
