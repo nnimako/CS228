@@ -154,8 +154,8 @@ var irisData = nj.array([
 
 var trainingCompleted = false;
 var numSamples = irisData.shape[0];
-var numFeatures = irisData.shape[1];
-var predictedClassLabels = nj.zeros([numSamples]);
+var numFeatures = irisData.shape[1]-1;
+var predictedClassLabels = nj.zeros(numSamples);
 
 var currentFeatures;
 var currentLabel;
@@ -173,12 +173,12 @@ function draw(){
 function Train(){
 	for (var i=0; i<numSamples; i++){
 		if (i%2 ==0){
-			currentFeatures = irisData.pick(i).slice([0,2]);
-			currentLabel = irisData.pick(i).get(-1);
+			currentFeatures = irisData.pick(i).slice([0,4]);
+			currentLabel = irisData.get(i,-1);
 			//console.log(i, ">>>", currentFeatures.toString(), ">>>", currentLabel);
 			knnClassifier.addExample(currentFeatures.tolist(), currentLabel);
 
-			var predictedLabel = knnClassifier.classify(currentFeatures.tolist(), GotResults);
+			//var predictedLabel = knnClassifier.classify(currentFeatures.tolist(), GotResults);
 			// console.log(i, ">>>", currentFeatures.toString(), ">>>", currentLabel, ">>>", predictedLabel);
 		}
 	}
@@ -187,8 +187,8 @@ function Train(){
 }
 
 function Test(){
-    currentFeatures = irisData.pick(testingSampleIndex).slice([0,2]);
-    currentLabel = irisData.pick(testingSampleIndex).get(-1);
+    currentFeatures = irisData.pick(testingSampleIndex).slice([0,4]);
+    currentLabel = irisData.get(testingSampleIndex,-1);
 	var predictedLabel = knnClassifier.classify(currentFeatures.tolist(), GotResults);
 	// console.log(currentFeatures.toString(), ">>>", currentLabel, ">>>", predictedLabel);
 
@@ -216,28 +216,79 @@ function GotResults(err, result){
 function DrawCircles(){
     var x,y,c, color;
     for(var i=0; i< numSamples; i++){
-        x = irisData.pick(i).get(0);
-        y = irisData.pick(i).get(1);
-        c = irisData.pick(i).get(-1);
+        x = irisData.get(i,0);
+        y = irisData.get(i,1);
+        c =  irisData.get(i, -1);
 
-        if (c == 0) {
-            color = 'red';
+        switch (c) {
+            case 0:
+                fill('red');
+                break;
+            case 1:
+                fill('limegreen');
+                break;
+            case 2:
+                fill('blue');
+                break;
+        }
+        // edge color depending on row.
+        if (i % 2 != 0) {
+            switch (predictedClassLabels.get(i)) {
+                case 0:
+                    strokeWeight(2);
+                    stroke('red');
+                    break;
+                case 1:
+                    strokeWeight(2);
+                    stroke('limegreen');
+                    break;
+                case 2:
+                    strokeWeight(2);
+                    stroke('blue');
+                    break;
+            }
+        } else {
+            stroke(0,0,0)
+        }
+        circle(x*150, y*150, 10);
+    }
+
+       /* if (c == 0) {
+            // color = 'red';
+            color = 'rgb(255, 80, 80)';
             fill(color);
         } else if(c == 1){
-            color = "limegreen";
+            // color = "blue";
+            color = 'rgb(0, 153, 204)';
             fill(color);
         }else if(c = 2){
-            color = "blue";
+            color = 'rgb(153, 255, 51)';
+            // color = "limegreen";
             fill(color);
-        }
+        } 
 
-        if (i%2 == 0){
-            stroke(0,0,0);
+        
+
+        if (i%2 != 0){
+            if (c == 0) {
+            // color = 'red';
+                color = 'rgb(255, 80, 80)';
+                stroke(color);
+            } else if(c == 1){
+            // color = "blue";
+                color = 'rgb(0, 153, 204)';
+                stroke(color);
+            }else if(c = 2){
+                color = 'rgb(153, 255, 51)';
+            // color = "limegreen";
+                stroke(color);
+            }
+            strokeWeight(2);
             // stroke(color);
-        }else{
-            stroke(color);
+        }else if (i%2 == 0){
+            strokeWeight(2);
+            stroke(0,0,0);
         }
         // console.log(x, ">>>", y);
-        circle(x*100, y*100, 10);
-    }
+        circle(x*150, y*150, 10)*/
 }
