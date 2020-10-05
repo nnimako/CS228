@@ -175,6 +175,9 @@ function Train(){
 		if (i%2 ==0){
 			currentFeatures = irisData.pick(i).slice([0,4]);
 			currentLabel = irisData.get(i,-1);
+            console.log(currentFeatures.toString());
+            console.log("====");
+            console.log(currentFeatures.tolist().toString());
 			//console.log(i, ">>>", currentFeatures.toString(), ">>>", currentLabel);
 			knnClassifier.addExample(currentFeatures.tolist(), currentLabel);
 
@@ -188,6 +191,7 @@ function Train(){
 
 function Test(){
     currentFeatures = irisData.pick(testingSampleIndex).slice([0,4]);
+    console.log(currentFeatures.toString());
     currentLabel = irisData.get(testingSampleIndex,-1);
 	var predictedLabel = knnClassifier.classify(currentFeatures.tolist(), GotResults);
 	// console.log(currentFeatures.toString(), ">>>", currentLabel, ">>>", predictedLabel);

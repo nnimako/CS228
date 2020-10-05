@@ -1,11 +1,7 @@
-nj.config.printThreshold = 10;
-var framesOfData = nj.zeros([5,4,6,2]);
+var oneFrameOfData = nj.zeros([5,4,6]);
+// console.log(oneFrameOfData.toString());
 
-// console.log(framesOfData.toString());
-var numSamples = 2;
-var currentSample = 0;
-
-// framesOfData.set(0,1);
+// oneFrameOfData.set(0,1);
 var controllerOptions = {};
 // var x = window.innerWidth; //get the width of current window
 // var y = window.innerHeight;  //get the height of current window
@@ -28,32 +24,22 @@ function RecordData(){
 	if (previousNumHands > 1 && currentNumHands == 1){
 		background(51);
 	}
-
-	if (currentNumHands == 2){
-		currentSample++;
-		if(currentSample == numSamples){
-			currentSample = 0;
-		}
-	}
-	// console.log(currentSample);
 }
 
 function HandleHand(hand, InteractionBox){
 	var fingers = hand.fingers;
-	//var InteractionBox = frame.interactionBox;
 	for (var f=0; f<fingers.length; f++){
 		var finger = fingers[f];
 		for(var b=finger.bones.length-1; b>=0; b--){
-			HandleBone(finger.bones[b], 1.5, f, b, InteractionBox);
+			HandleBone(finger.bones[b], 1.5, f, b);
 		}
 	}
 }
 
 function HandleFrame(frame){
 	if (frame.hands.length == 1 || frame.hands.length > 1) {
-		var InteractionBox = frame.interactionBox;
 		var hand = frame.hands[0];
-		HandleHand(hand, InteractionBox);
+		HandleHand(hand);
 	}
 }
 
@@ -65,34 +51,14 @@ function HandleFrame(frame){
 		HandleBone(bone, strkWeight);
 	}
 }*/
-function HandleBone(bone,strkWeight, fingerIndex, boneIndex, InteractionBox){
+function HandleBone(bone,strkWeight, fingerIndex, boneIndex, interactionBox){
 	var bone_base = bone.prevJoint;
 	var bone_tip = bone.nextJoint;
 
-	//var InteractionBox = frame.interactionBox;
-	normalizedPrevJoint = InteractionBox.normalizePoint(bone_base, true);
-	// console.log(normalizedPrevJoint[1]);
-	normalizedNextJoint = InteractionBox.normalizePoint(bone_tip, true);
+	normalizedPrevJoint = interactionBox.normalizePoint(prevJoint);
 
-	// framesOfData.
-	framesOfData.set(fingerIndex, boneIndex, 0, currentSample, normalizedPrevJoint[0]);
-	framesOfData.set(fingerIndex, boneIndex, 1, currentSample, normalizedPrevJoint[1]);
-	framesOfData.set(fingerIndex, boneIndex, 2, currentSample, normalizedPrevJoint[2]);
-	framesOfData.set(fingerIndex, boneIndex, 3, currentSample, normalizedNextJoint[0]);
-	framesOfData.set(fingerIndex, boneIndex, 4, currentSample, normalizedNextJoint[1]);
-	framesOfData.set(fingerIndex, boneIndex, 5, currentSample, normalizedNextJoint[2]);
+	console.log(normalizedPrevJoint);
 
-	// console.log(framesOfData.pick(null,null,null,1).toString());
-	
-
-	var canvasPrevJointX = window.innerWidth * normalizedPrevJoint[0];
-	var canvasPrevJointY = window.innerHeight * (1 - normalizedPrevJoint[1]);
-
-	var canvasNextJointX = window.innerWidth * normalizedNextJoint[0];
-	var canvasNextJointY = window.innerHeight * (1 - normalizedNextJoint[1]);
-
-	//console.log(canvasPrevJointX, ">>>", canvasPrevJointY);
-	
 	var xb = bone_base[0];
 	var yb = bone_base[1];
 	var zb = bone_base[2];
@@ -101,8 +67,8 @@ function HandleBone(bone,strkWeight, fingerIndex, boneIndex, InteractionBox){
 	var yt = bone_tip[1];
 	var zt = bone_tip[2];
 
-	[xb,yb] = TransformCoordinates(normalizedPrevJoint[0],normalizedPrevJoint[1]);
-	[xt,yt] = TransformCoordinates(normalizedNextJoint[0], normalizedNextJoint[1]);
+	[xb,yb] = TransformCoordinates(xb,yb);
+	[xt,yt] = TransformCoordinates(xt,yt);
 
 	if (bone.type == 3){
 		strkWeight += 1.5;
@@ -126,12 +92,12 @@ function HandleBone(bone,strkWeight, fingerIndex, boneIndex, InteractionBox){
 
 	line(xt,window.innerHeight - yt,xb, window.innerHeight - yb);
 	
-	/*framesOfData.set(fingerIndex, boneIndex, 0, xb);
-	framesOfData.set(fingerIndex, boneIndex, 1, yb);
-	framesOfData.set(fingerIndex, boneIndex, 2, zb);
-	framesOfData.set(fingerIndex, boneIndex, 3, xt);
-	framesOfData.set(fingerIndex, boneIndex, 4, yt);
-	framesOfData.set(fingerIndex, boneIndex, 5, zt);*/
+	oneFrameOfData.set(fingerIndex, boneIndex, 0, xb);
+	oneFrameOfData.set(fingerIndex, boneIndex, 1, yb);
+	oneFrameOfData.set(fingerIndex, boneIndex, 2, zb);
+	oneFrameOfData.set(fingerIndex, boneIndex, 3, xt);
+	oneFrameOfData.set(fingerIndex, boneIndex, 4, yt);
+	oneFrameOfData.set(fingerIndex, boneIndex, 5, zt);
 }
 
 function TransformCoordinates(x,y){
@@ -163,7 +129,7 @@ Leap.loop(controllerOptions, function(frame)
 	clear();
 	if (currentNumHands ==1){
 		stroke(0,90,0);
-		// console.log(framesOfData.toString());
+		console.log(oneFrameOfData.toString());
 	} else{
 		stroke(250,0,0);
 	}
@@ -183,6 +149,8 @@ Leap.loop(controllerOptions, function(frame)
 	HandleFrame(frame);
 
 	RecordData();
-	console.log(framesOfData.toString());
+
 	previousNumHands = currentNumHands;
 });
+
+// console.log(oneFrameOfData.toString());
